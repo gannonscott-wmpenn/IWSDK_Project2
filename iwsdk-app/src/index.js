@@ -4,13 +4,15 @@ import {
   SphereGeometry,PlaneGeometry,
   SessionMode,
   World,
-  LocomotionEnvironment,EnvironmentType
+  LocomotionEnvironment,EnvironmentType,
+  CylinderGeometry
 } from '@iwsdk/core';
 
 import {
   Interactable,
   PanelUI,
   ScreenSpace,
+  OneHandGrabbable,
   PhysicsSystem,
   PhysicsBody,
   PhysicsShape,
@@ -32,13 +34,16 @@ World.create(document.getElementById('scene-container'), {
     features: { }
   },
 
-  features: { locomotion: true },
+  features: {
+    locomotion: true,
+    grabbing: true,
+  },
 
 }).then((world) => {
 
-  World.registerSystem(PhysicsSystem, { configData: { gravity: [0, -10, 0] } });
-  World.registerComponent(PhysicsBody);
-  World.registerComponent(PhysicsShape);
+  world.registerSystem(PhysicsSystem, { configData: { gravity: [0, -10, 0] } });
+  world.registerComponent(PhysicsBody);
+  world.registerComponent(PhysicsShape);
 
   const { camera } = world;
 
@@ -51,8 +56,10 @@ World.create(document.getElementById('scene-container'), {
   const sphereEntity = world.createTransformEntity(sphere);
 
   sphereEntity.addComponent(PhysicsShape, {
-    shape: PhysicsShapeType.Auto // Automatically detects sphere
+    shape: PhysicsShapeType.Auto,
+    restitution: 0.7
   });
+
   sphereEntity.addComponent(PhysicsBody, {
     state: PhysicsState.Dynamic // Falls due to gravity
   });
@@ -63,11 +70,28 @@ World.create(document.getElementById('scene-container'), {
   floorMesh.rotation.x = -Math.PI / 2;
   const floorEntity = world.createTransformEntity(floorMesh);
   floorEntity.addComponent(LocomotionEnvironment, { type: EnvironmentType.STATIC });
+
   floorEntity.addComponent(PhysicsShape, {
     shape: PhysicsShapeType.Auto
   });
+
   floorEntity.addComponent(PhysicsBody, {
     state: PhysicsState.Static
+  });
+
+  const clubGeom = new CylinderGeometry(.1,.1,2);
+  const clubMtrl = new MeshStandardMaterial({color:"brown"});
+  const club = new Mesh(clubGeom, clubMtrl);
+  club.position.set(1,1,1);
+  const clubEntity = world.createTransformEntity(club);
+
+  clubEntity.addComponent(Interactable);
+  clubEntity.addComponent(OneHandGrabbable);
+  clubEntity.addComponent(PhysicsShape, {
+    shape: PhysicsShapeType.Auto
+  });
+  clubEntity.addComponent(PhysicsState, {
+    state: PhysicsState.Kinematic
   });
 
 
