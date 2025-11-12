@@ -22,10 +22,7 @@ import { PanelSystem } from './panel.js'; // system for displaying "Enter VR" pa
 
 const assets = { };
 
-World
-  .registerSystem(PhysicsSystem, { configData: { gravity: [0, -10, 0] } })
-  .registerComponent(PhysicsBody)
-  .registerComponent(PhysicsShape);
+
 
 World.create(document.getElementById('scene-container'), {
   assets,
@@ -38,6 +35,10 @@ World.create(document.getElementById('scene-container'), {
   features: { locomotion: true },
 
 }).then((world) => {
+
+  World.registerSystem(PhysicsSystem, { configData: { gravity: [0, -10, 0] } });
+  World.registerComponent(PhysicsBody);
+  World.registerComponent(PhysicsShape);
 
   const { camera } = world;
 
