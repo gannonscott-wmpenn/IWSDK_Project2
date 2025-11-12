@@ -10,12 +10,22 @@ import {
 import {
   Interactable,
   PanelUI,
-  ScreenSpace
+  ScreenSpace,
+  PhysicsSystem,
+  PhysicsBody,
+  PhysicsShape,
+  PhysicsState,
+  PhysicsShapeType
 } from '@iwsdk/core';
 
 import { PanelSystem } from './panel.js'; // system for displaying "Enter VR" panel on Quest 1
 
 const assets = { };
+
+World
+  .registerSystem(PhysicsSystem, { configData: { gravity: [0, -10, 0] } })
+  .registerComponent(PhysicsBody)
+  .registerComponent(PhysicsShape);
 
 World.create(document.getElementById('scene-container'), {
   assets,
@@ -39,11 +49,25 @@ World.create(document.getElementById('scene-container'), {
   sphere.position.set(1, 1.5, -3);
   const sphereEntity = world.createTransformEntity(sphere);
 
+  sphereEntity.addComponent(PhysicsShape, {
+    shape: PhysicsShapeType.Auto // Automatically detects sphere
+  });
+  sphereEntity.addComponent(PhysicsBody, {
+    state: PhysicsState.Dynamic // Falls due to gravity
+  });
+
+
   // create a floor
   const floorMesh = new Mesh(new PlaneGeometry(20, 20), new MeshStandardMaterial({color:"tan"}));
   floorMesh.rotation.x = -Math.PI / 2;
   const floorEntity = world.createTransformEntity(floorMesh);
   floorEntity.addComponent(LocomotionEnvironment, { type: EnvironmentType.STATIC });
+  floorEntity.addComponent(PhysicsShape, {
+    shape: PhysicsShapeType.Auto
+  });
+  floorEntity.addComponent(PhysicsBody, {
+    state: PhysicsState.Static
+  });
 
 
 
